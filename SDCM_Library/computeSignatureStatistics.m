@@ -1,0 +1,59 @@
+%ABSTRACT
+% Library function for SDCM. Compute derived signature statistics like
+% the abs mean signal in its focus (.signatureAbsMean2D) and return the 
+% completed signature structure.
+
+  function [...
+     signatureAbsMean2D, sampleSize4signatureAbsMean2D, signatureAbsSD2D, log10_p4SignalStrength ...
+    ,signatureCorrInExtendedFocus, log10_p ...
+  ] = computeSignatureStatistics(...
+     L2Rs...
+    ,signedExtendedW4G, signedExtendedW4P...
+    ,R4G, R4P ...
+    ,signatureSizeByCorrSum4G, signatureSizeByCorrSum4P...
+    ,log10_p4Correlations ...
+    ,noiseEstimation ...
+    ,BM ...
+  )
+    %Compute the poduct signature focus wherein statistics should be averaged:
+      W2D = sqrt(abs(bsxfun(@times, signedExtendedW4G, signedExtendedW4P)));
+    %Mean abs signal strength of the signature that is consistent with the signature's correlations (the sum is constructive only if signs(W2D_reduced) match):
+      signatureAbsMean2D = BM.meanW(... %this is the mean abs(signal) niveau of the signature; needed later for signal strength p values.
+        abs(L2Rs(:)) ... 
+      ,W2D(:));
+        if(isnan(signatureAbsMean2D)) signatureAbsMean2D=0; end %define signature signal strengths for all-zero-weights as zero (for high NaN ratio scenarios).
+    %Effective amount of points/information backing the signatureAbsMean:
+      sampleSize4signatureAbsMean2D = BM.meanW(... 
+        W2D(:) ... %weights are in [0,1], so no pixel can contribute >1 DOF. Hence, this should be a valid lower bound of the true DOFs and never underestimate p values.
+      ,~isnan(L2Rs(:)),1,true);
+    %Standard deviation of the signature's abs signal around signatureAbsMean2D:
+      signatureAbsSD2D = sqrt(BM.meanW(... %this is the SD relative to the abs(signal) niveau of the signature; needed later for signal strength p values.
+        (abs(L2Rs(:))-signatureAbsMean2D).^2 ... %sqrt(E[(X-mu)^2])
+      ,W2D(:))); %for a correct p value we must use the same weights as for averaging the abs signal.
+        if(isnan(signatureAbsSD2D)) signatureAbsSD2D=Inf; end %define signature abs signal SDs for all-zero-weights as Inf (for high NaN ratio scenarios).
+    %Mean absolute correlation of all participating genes and samples to the signature's axes (using the points behind computed corrs as weights):
+      signatureCorrInExtendedFocus = (...
+         signatureSizeByCorrSum4P * BM.meanW(abs(R4G), abs(signedExtendedW4G), 1) ...
+       + signatureSizeByCorrSum4G * BM.meanW(abs(R4P), abs(signedExtendedW4P), 2) ...
+      )/(signatureSizeByCorrSum4G+signatureSizeByCorrSum4P);
+        if(isnan(signatureCorrInExtendedFocus)) signatureCorrInExtendedFocus=0; end %define signature signal average corr for all-zero-weights as zero (for high NaN ratio scenarios).
+    %Signal strength significance in the signature focus:
+      if(isfield(noiseEstimation,'nsBehindAbsMean2D')) 
+        log10_p4SignalStrength = pValue4SignalStrength(...
+           signatureAbsMean2D, sampleSize4signatureAbsMean2D, signatureAbsSD2D ...
+          ,noiseEstimation.absMean2D, noiseEstimation.nsBehindAbsMean2D, noiseEstimation.SD4absMean2D ... %current overall signal statistics (based on the most current noise estimation from the last iteration k-1) for comparison to calculate the signal strength p value.
+        );
+      else
+        log10_p4SignalStrength = nan; %not available before the first dissection; only use correlation based p values for qualification in iteration k==1.
+      end
+    %Global signature p value: Combine p values for correlations and signal strength:
+      %Note: the pValues for correlations have already been updated on caller level (when correlations were computed)
+      %since correlations and signal strength are independent, we can use Fisher's method:
+        if(~isnan(log10_p4SignalStrength))
+          chi2 = -2*(log10_p4Correlations*log(10) + log10_p4SignalStrength*log(10)); %-2*sum(ln(p_i))
+          log10_p = exactUpperChi2CDF(chi2,2*2)/log(10);
+        else
+          log10_p = log10_p4Correlations;  %no reliable signal noise estimate for the detection of the first signature; just use the correlation p value.
+        end
+  end
+
