@@ -4,11 +4,60 @@ M. Grau, G. Lenz and P. Lenz, "Dissection of gene expression datasets into clini
 relevant interaction signatures via high-dimensional correlation maximization", 
 Nature Communications, 10, 5417 (2019) doi:10.1038/s41467-019-12713-5
 
-## Getting Started
-
 **tl;dr** Download and extract the release ZIP or clone this repository. 
 Open `selfTest_lowDim.m` or `selfTest_highDim.m` in your Matlab editor. 
-Press F5 to run. Then read the in-code docu/comments/config.
+Press F5 to run. Then read the in-code docu/comments/config explanations.
+
+## Documentation
+
+### About the method
+SDCM is a novel first-principles method that overcomes limitations of principal components 
+analysis (PCA), namely linearity and orthogonality. Via its signature functional, it searches
+for and maximizes correlation and consistency in the data. It models, 
+discovers and dissects overlapping signatures from real interactions via its nonlinear signal model
+based on bimonotonic functions. For data focusing, it utilizes weight hyper cones. 
+SDCM has already discovered novel gene expression signatures with strong impact on
+patient survival. Like PCA, it is mathematically generic and ready to use for new datasets.
+
+### Research Article
+#### Abstract
+Gene expression is controlled by many simultaneous interactions, frequently measured 
+collectively in biology and medicine by high-throughput technologies. It is a highly 
+challenging task to infer from these data the generating effects and cooperating genes. 
+Here, we present an unsupervised hypothesis-generating learning concept termed signal 
+dissection by correlation maximization (SDCM) that dissects large high-dimensional datasets 
+into signatures. Each signature captures a particular signal pattern that was consistently 
+observed for multiple genes and samples, likely caused by the same underlying interaction. 
+A key difference to other methods is our flexible nonlinear signal superposition model, 
+combined with a precise regression technique. Analyzing gene expression of diffuse large 
+B-cell lymphoma, our method discovers previously unidentified signatures that reveal 
+significant differences in patient survival. These signatures are more predictive than 
+those from various methods used for comparison and robustly validate across technological 
+platforms. This implies highly specific extraction of clinically relevant gene interactions.
+
+#### Paper Link and Methods Outline
+For a detailed introduction for introduction, definition and discussion of results by SDCM
+for Diffuse Large B-Cell Lymphoma, read our paper at https://www.nature.com/articles/s41467-019-12713-5.
+In particular, the methods section provides a comprehensive mathematical description 
+of SDCM, organized in the following subsections:
+  - Conceptual summary
+  - Mathematical framework
+  - Model
+  - Measure for interactions
+  - Algorithm Overview
+    - Step 1: Initial representative or termination 
+    - Step 2: Signature axes via maximization principle
+    - Step 3: Bi-monotonic regression and smoothening
+    - Step 4: Signature signal E_k and its dissection
+  - Signature focus
+  - Signature functional
+  - Signature strengths
+  - Smoothening operator
+  - Bi-monotonic regression
+  - Algorithmic complexity
+  - and Further Methods.
+
+## Dissecting Your Own Data
 
 ### System Requirements
 - This SDCM software package is a Matlab toolbox developed with Matlab 
@@ -49,49 +98,10 @@ Press F5 to run. Then read the in-code docu/comments/config.
   `configuration = SDCM_defaultConfig(numberOfGenes, numberOfPatients);`
   The resulting structure contains all configurable SDCM parameters, including
   visualization and export options. Parameters are organized hierarchically as a tree.
-- Each parameter is explained in `configuration.explanations.\*` at the same tree 
+- Each parameter is explained in `configuration.explanations.*` at the same tree 
   position (or, alternatively, read the source file `SDCM_defaultConfig.m`).
 
-## Documentation
-
-### Abstract
-Gene expression is controlled by many simultaneous interactions, frequently measured 
-collectively in biology and medicine by high-throughput technologies. It is a highly 
-challenging task to infer from these data the generating effects and cooperating genes. 
-Here, we present an unsupervised hypothesis-generating learning concept termed signal 
-dissection by correlation maximization (SDCM) that dissects large high-dimensional datasets 
-into signatures. Each signature captures a particular signal pattern that was consistently 
-observed for multiple genes and samples, likely caused by the same underlying interaction. 
-A key difference to other methods is our flexible nonlinear signal superposition model, 
-combined with a precise regression technique. Analyzing gene expression of diffuse large 
-B-cell lymphoma, our method discovers previously unidentified signatures that reveal 
-significant differences in patient survival. These signatures are more predictive than 
-those from various methods used for comparison and robustly validate across technological 
-platforms. This implies highly specific extraction of clinically relevant gene interactions.
-
-### Paper
-For a detailed introduction for introduction, definition and discussion of results by SDCM
-for Diffuse Large B-Cell Lymphoma, read our paper.
-In particular, the methods section provides a comprehensive mathematical description 
-of SDCM, organized by the following subsections:
-  - Summary
-  - Framework
-  - Model
-  - Measure for interactions
-  - Algorithm overview
-    - Step 1: Initial representative or termination 
-    - Step 2: Signature axes via maximization principle
-    - Step 3: Bi-monotonic regression and smoothening
-    - Step 4: Signature signal E_k and its dissection
-  - Signature focus
-  - Signature functional
-  - Signature strengths
-  - Smoothening operator
-  - Bi-monotonic regression
-  - Algorithmic complexity
-  - and Further Methods.
-
-## Support and Hints
+### Support and Hints
 - For support, please open a new issue here at GitHub. If applicable, include or upload a 
   ZIP with your input log2(intensities) matrix and input configuration structure saved 
   as .mat file and provide a Matlab script that reproduces or demonstrates the problem. 
@@ -117,4 +127,3 @@ of SDCM, organized by the following subsections:
   group lines of code. Then your chosen fold-all hotkey and hotkeys for jumping to 
   the previous/next Matlab code cell should give you a high-level
   code overview and help navigating the code quickly.
-
