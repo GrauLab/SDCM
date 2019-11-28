@@ -1,8 +1,8 @@
 # Signal Dissection by Correlation Maximization (SDCM)
 
-M. Grau, G. Lenz and P. Lenz, "Dissection of gene expression datasets into 
-clinically relevant interaction signatures via high-dimensional correlation 
-maximization", Nature Communications, 2019
+M. Grau, G. Lenz and P. Lenz, "Dissection of gene expression datasets into clinically
+relevant interaction signatures via high-dimensional correlation maximization", 
+Nature Communications, 10, 5417 (2019) doi:10.1038/s41467-019-12713-5
 
 ## Getting Started
 

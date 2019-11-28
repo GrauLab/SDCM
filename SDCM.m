@@ -59,9 +59,9 @@
 %  group lines of code.
 %REFERENCES
 %  For a complete documentation of signal dissection, see the following article:
-%  [1] M. Grau, G. Lenz and P. Lenz, "SDCM: Inference of interactions from high-
-%      dimensional datasets and survival prediction in diffuse large B-cell lymphoma", 
-%      Nature Communications (submitted).
+%  [1] M. Grau, G. Lenz & P. Lenz. "Dissection of gene expression datasets into 
+%      clinically relevant interaction signatures via high-dimensional correlation 
+%      maximization". Nat Commun 10, 5417 (2019) doi:10.1038/s41467-019-12713-5
 %  The GPAV algorithm is used for 1D monotonic regressions; for details see:
 %  [2] O. Burdakov, O. Sysoev, A. Grimvall and M. Hussian. "An O(n2) algorithm for 
 %      isotonic regression." In: G. Di Pillo and M. Roma (Eds) Large-Scale Nonlinear 
