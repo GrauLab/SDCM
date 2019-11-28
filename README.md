@@ -4,11 +4,11 @@ M. Grau, G. Lenz and P. Lenz, "Dissection of gene expression datasets into clini
 relevant interaction signatures via high-dimensional correlation maximization", 
 Nature Communications, 10, 5417 (2019) doi:10.1038/s41467-019-12713-5
 
+## Documentation
+
 **tl;dr** Download and extract the release ZIP or clone this repository. 
 Open `selfTest_lowDim.m` or `selfTest_highDim.m` in your Matlab editor. 
 Press F5 to run. Then read the in-code docu/comments/config explanations.
-
-## Documentation
 
 ### About the method
 SDCM is a novel first-principles method that overcomes limitations of principal components 
