@@ -59,28 +59,28 @@
 %  group lines of code.
 %REFERENCES
 %  For a complete documentation of signal dissection, see the following article:
-%  [1] M. Grau, G. Lenz & P. Lenz. "Dissection of gene expression datasets into 
-%      clinically relevant interaction signatures via high-dimensional correlation 
-%      maximization". Nat Commun 10, 5417 (2019) doi:10.1038/s41467-019-12713-5
+%  [1] M. Grau, G. Lenz and P. Lenz, "Dissection of gene expression datasets into clinically
+%      relevant interaction signatures via high-dimensional correlation maximization", 
+%      Nature Communications, 10, 5417 (2019) doi:10.1038/s41467-019-12713-5
 %  The GPAV algorithm is used for 1D monotonic regressions; for details see:
 %  [2] O. Burdakov, O. Sysoev, A. Grimvall and M. Hussian. "An O(n2) algorithm for 
 %      isotonic regression." In: G. Di Pillo and M. Roma (Eds) Large-Scale Nonlinear 
 %      Optimization. Series: Nonconvex Optimization and Its Applications, Springer-
 %      Verlag, (2006) 83, pp. 25-33.
 %SUPPORT AND UPDATES
-%  Please contact me via sciene dot Michael dot Grau at gmail. For support requests, 
-%  use "SDCM support: <problem title>" as your eMail subject. Include or upload a 
-%  ZIP with your L2Is and inInfo configuration saved as .mat file and a script that 
-%  reproduces or demonstrates the problem. I will try to debug any reproducible problems 
-%  on the basis of available time resources. (Questions that are answered by [1],
+%  Please use GitHub issues or contact me via sciene dot Michael dot Grau at gmail. 
+%  For support requests, use "SDCM support: <problem title>" as your eMail subject. 
+%  Include or upload a ZIP with your L2Is and inInfo configuration saved as .mat file and 
+%  a script that reproduces or demonstrates the problem. I will try to debug any reproducible 
+%  problems on the basis of available time resources. (Questions that are answered by [1],
 %  its SIs, the source code or by MATLAB's documentation have to be ignored; sorry.)
 %LICENSE (colloquial)
-%  Free to use and modify in science, as long as [1] is properly cited. Redistribution 
-%  of the code or offerring indirect access to it (e.g. via a web service) requires  
-%  written consent. Free to test for anyone. Free for personal use. A license is required 
-%  as soon as you directly or indirectly generate revenue with it; in this case contact me  
-%  for a commercial license. The code is provided AS IS with no warranties whatsoever.
-%  (For a juridical formulation, see license.txt.)
+%  SDCM is free to use and modify for any academic purpose, just cite [1] as usual. 
+%  Redistribution of the code or offerring indirect access to it (e.g. via a web service) 
+%  requires written consent. For commercial contexts, SDCM is free for all testing and 
+%  development purposes. A license is required as soon as you directly or indirectly 
+%  generate revenue with it; in this case, contact me for a commercial license. 
+%  The code is provided AS IS with no warranties whatsoever.
 %AUTHOR
 %  (c) Michael Grau, 2012-2016; version 3.55, April 2016.
 
