@@ -482,6 +482,219 @@ function [bimonotonicX, signatureDefinition] = bimonotonicRegression(...
           ,iif(bBiMonotonic, sprintf('<=%1.1e*SD => converged.',inInfo.dissection.bimonotonicRegression.epsilon4convergenceInSDs), sprintf('> %1.1e*SD => not converged, yet',inInfo.dissection.bimonotonicRegression.epsilon4convergenceInSDs)) ...
           ,sd4epsilon...
         );
+        %Dev plot:
+          if(inInfo.internal.bDevPlots)
+            sTitle = sprintf('bimonotonic regression iteration %d', nBimonotonicConvergenceLoopIterations);
+            fDevPlot = figure(...
+              'Name', sTitle ...
+             ,'Position',[73 1 1841 1021]...
+             ,'Color','w' ...
+            );
+              colormap(sqrt(inInfo.plots.colormap_withNaNColor));
+              Hs = [];
+              cbHs = [];
+            %Original, current, next, delta:
+              if(true)
+                Hs(end+1) = subplot(2,6,1); h1=Hs(end);
+                  data2Plot = X; %original
+                    cLim = 1.5*[-1,1]*sqrt(nanvar(X(:),abs(X(:))));
+                    caxis(cLim);
+                    if(true)
+                      lowerBound4Data = cLim(1) + 1.5*abs(diff(cLim))/size(inInfo.plots.colormap_withNaNColor,1);
+                      data2Plot(data2Plot<lowerBound4Data) = lowerBound4Data; %show underflow expressions in the bluest color and not in NaN-gray.
+                    end
+                    imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+                    caxis(cLim);
+                    cbHs(end+1) = colorbar('location','SouthOutside');
+                  title(sprintf('signal in eigenorder\nbefore regression'));
+                %figure title:
+                  h=text(...
+                     ilsub(xlim(h1),1)-abs(diff(xlim(h1)))/20, min(ylim(h1))+abs(diff(ylim(h1)))*0.61 ...
+                    ,[{sTitle};{' ';' ';' '}]...
+                    ,'Parent',h1 ...
+                    ,'Color',[0 0 0.5],'FontWeight','bold','FontSize',19,'Rotation',90 ...
+                    ,'HorizontalAlignment','right','VerticalAlignment','bottom' ...
+                  );
+
+                Hs(end+1) = subplot(2,6,2);
+                  data2Plot = bsxfun(@plus,ismember(1:nG,performanceSubI4G)',+ismember(1:nP,performanceSubJ4P));
+                  imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+                    caxis([0.1,2.1]);
+                    %cbHs(end+1) = colorbar('location','SouthOutside');
+                  title(sprintf('performance subspace mask\n(incomplete rows/cols are interpolated)'));
+%                 subplot(2,6,2);
+%                   data2Plot = bsxfun(@plus,ismember(1:nG,performanceSubI4G)',+ismember(1:nP,performanceSubJ4P));
+%                   imagesc(bsxfun(@or, BInterpolationSpace4G, BInterpolationSpace4P)); %cannot use robustBaseline here as it is cluastering-dependent.
+%                     caxis([0,1]);
+%                     %cbHs(end+1) = colorbar('location','SouthOutside');
+%                   title(sprintf('interpolation mask'));
+
+                Hs(end+1) = subplot(2,6,3);
+                  data2Plot = bimonotonicX_previous; %current/before
+                    caxis(cLim);
+                    if(true)
+                      lowerBound4Data = ilsub(caxis,1) + 1.5*abs(diff(caxis))/size(inInfo.plots.colormap_withNaNColor,1);
+                      data2Plot(data2Plot<lowerBound4Data) = lowerBound4Data; %show underflow expressions in the bluest color and not in NaN-gray.
+                    end
+                    imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+                    caxis(cLim);
+                    cbHs(end+1) = colorbar('location','SouthOutside');
+                  title(sprintf('start of bimonotonic\nregression iteration %d',nBimonotonicConvergenceLoopIterations));
+
+                Hs(end+1) = subplot(2,6,4);
+                  data2Plot = Z_eqd_conv_enforcedMonotonicity4G-Z_eqd_conv_enforcedMonotonicity4P; %differences
+                    cLim2 = 3*[-1,1]*nanstd(data2Plot(:));
+                    if(all(~isnan(cLim2)))
+                      caxis(cLim2);
+                    end
+                    if(true)
+                      lowerBound4Data = ilsub(caxis,1) + 1.5*abs(diff(caxis))/size(inInfo.plots.colormap_withNaNColor,1);
+                      data2Plot(data2Plot<lowerBound4Data) = lowerBound4Data; %show underflow expressions in the bluest color and not in NaN-gray.
+                    end
+                    imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+                    caxis(cLim2);
+                    cbHs(end+1) = colorbar('location','SouthOutside');
+                  title(sprintf('differences between\nmonotonic genes\nand monotonic samples'));
+                  
+%                 Hs(end+1) = subplot(2,6,4);
+%                   data2Plot = fnc_ip_convolution_eqd({orderMetric4G, orderMetric4P}); %naive Fourier smoothing+eqdBimonotonicity based.
+%                     caxis(cLim);
+%                     if(true)
+%                       lowerBound4Data = ilsub(caxis,1) + 1.5*abs(diff(caxis))/size(inInfo.plots.colormap_withNaNColor,1);
+%                       data2Plot(data2Plot<lowerBound4Data) = lowerBound4Data; %show underflow expressions in the bluest color and not in NaN-gray.
+%                     end
+%                     imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+%                     caxis(cLim);
+%                     cbHs(end+1) = colorbar('location','SouthOutside');
+%                   title(sprintf('interpolation base'));
+
+
+                Hs(end+1) = subplot(2,6,5);
+                  data2Plot = bimonotonicX; %common and next
+                    caxis(cLim);
+                    if(true)
+                      lowerBound4Data = ilsub(caxis,1) + 1.5*abs(diff(caxis))/size(inInfo.plots.colormap_withNaNColor,1);
+                      data2Plot(data2Plot<lowerBound4Data) = lowerBound4Data; %show underflow expressions in the bluest color and not in NaN-gray.
+                    end
+                    imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+                    caxis(cLim);
+                    cbHs(end+1) = colorbar('location','SouthOutside');
+                  title(sprintf('result of bimonotonic regression\niteration %d (weighted mean ~\nnewW4P*regressionResults4P\n+newW4G*regressionResults4G)',nBimonotonicConvergenceLoopIterations));
+                  
+                Hs(end+1) = subplot(2,6,6);
+                  data2Plot = -bimonotonicX_previous+bimonotonicX; %Veränderung
+                    cLim3 = 3*[-1,1]*nanstd(data2Plot(:));
+                    caxis(cLim3);
+                    if(true)
+                      lowerBound4Data = ilsub(caxis,1) + 1.5*abs(diff(caxis))/size(inInfo.plots.colormap_withNaNColor,1);
+                      data2Plot(data2Plot<lowerBound4Data) = lowerBound4Data; %show underflow expressions in the bluest color and not in NaN-gray.
+                    end
+                    imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+                    caxis(cLim3);
+                    cbHs(end+1) = colorbar('location','SouthOutside');
+                  title(sprintf('result minus before (average\nabs(signal) delta = %1.1e)%s',dL2RsConvergence,iif(bBiMonotonic,sprintf('\nCONVERGED'),'')));
+              end
+            %Weights before and after regression and regression results:
+              if(true)
+                Hs(end+1) = subplot(2,6,7);
+                  data2Plot = log10(W4P_previous); %weights used for regression of genes.
+                    %cLim4Weights = [0,max(3*nanstd(W4P_previous(:)),3*nanstd(W4G_previous(:)))];
+                    %cLim4Weights = [min([W4P_previous(:);W4G_previous(:)]),max([W4P_previous(:);W4G_previous(:)])];
+%                     cLim4Weights = [
+%                        ( mean(log10([W4P_previous(W4P_previous>0);W4G_previous(W4G_previous>0);W4Z_eqd_conv_enforcedMonotonicity4G(W4Z_eqd_conv_enforcedMonotonicity4G>0);W4Z_eqd_conv_enforcedMonotonicity4P(W4Z_eqd_conv_enforcedMonotonicity4P>0)])) ...
+%                        -3*nanstd(log10([W4P_previous(W4P_previous>0);W4G_previous(W4G_previous>0);W4Z_eqd_conv_enforcedMonotonicity4G(W4Z_eqd_conv_enforcedMonotonicity4G>0);W4Z_eqd_conv_enforcedMonotonicity4P(W4Z_eqd_conv_enforcedMonotonicity4P>0)])) )...
+%                       ,max(log10([W4P_previous(W4P_previous>0);W4G_previous(W4G_previous>0);W4Z_eqd_conv_enforcedMonotonicity4G(W4Z_eqd_conv_enforcedMonotonicity4G>0);W4Z_eqd_conv_enforcedMonotonicity4P(W4Z_eqd_conv_enforcedMonotonicity4P>0)])) ...
+%                     ];
+                    %cLim4Weights = [log10(1+min([W4G_previous(:);W4P_previous(:);W4G(:);W4P(:)])), log10(max([W4G_previous(:);W4P_previous(:);W4G(:);W4P(:)]))]
+                    %cLim4Weights = [log10(mean([W4G_previous(:);W4P_previous(:);W4G(:);W4P(:)])/5), log10(max([W4G_previous(:);W4P_previous(:);W4G(:);W4P(:)]))];
+                    cLim4Weights = [log10(mean([W4G_previous(:);W4P_previous(:);W4G(:);W4P(:)])/5), log10(max([W4G_previous(:);W4P_previous(:);W4G(:);W4P(:)]))];
+                    %if(cLim4Weights(1)==0) cLim4Weights(1) = min([W4P_previous(W4P_previous>0);W4G_previous(W4G_previous>0)])/2; end
+                    %cLim4Weights = log10(cLim4Weights);
+                    caxis(cLim4Weights);
+                      if(true)
+                        lowerBound4Data = ilsub(caxis,1) + 1.5*abs(diff(caxis))/size(inInfo.plots.colormap_withNaNColor,1);
+                        data2Plot(data2Plot<lowerBound4Data) = lowerBound4Data; %show underflow expressions in the bluest color and not in NaN-gray.
+                      end
+                    imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+                    caxis(cLim4Weights);
+                    cbHs(end+1) = colorbar('location','SouthOutside');
+                  title(sprintf('log_{10}(W4P before regression)\n(used for regressing genes\nand newW4P*nP/(nG+nP)\nfor regressionResults4P)'));
+
+                Hs(end+1) = subplot(2,6,8);
+                  data2Plot = Z_eqd_conv_enforcedMonotonicity4G; %monotonic genes
+                    caxis(cLim);
+                    if(true)
+                      lowerBound4Data = ilsub(caxis,1) + 1.5*abs(diff(caxis))/size(inInfo.plots.colormap_withNaNColor,1);
+                      data2Plot(data2Plot<lowerBound4Data) = lowerBound4Data; %show underflow expressions in the bluest color and not in NaN-gray.
+                    end
+                    imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+                    caxis(cLim);
+                    cbHs(end+1) = colorbar('location','SouthOutside');
+                  title(sprintf('monotonic genes\n(regressionResults4G)'));
+
+                Hs(end+1) = subplot(2,6,9);
+                  data2Plot = log10(W4Z_eqd_conv_enforcedMonotonicity4G); %weights used for regression of genes.
+                    caxis(cLim4Weights);
+                      if(true)
+                        lowerBound4Data = ilsub(caxis,1) + 1.5*abs(diff(caxis))/size(inInfo.plots.colormap_withNaNColor,1);
+                        data2Plot(data2Plot<lowerBound4Data) = lowerBound4Data; %show underflow expressions in the bluest color and not in NaN-gray.
+                      end
+                    imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+                    caxis(cLim4Weights);
+                    cbHs(end+1) = colorbar('location','SouthOutside');
+                  title(sprintf('log_{10}(weights from genes regression)\n(newW4G*nP/(nG+nP)\nfor regressionResults4G)')); %W4Z_eqd_conv_enforcedMonotonicity4G
+
+                    
+                    
+                Hs(end+1) = subplot(2,6,10);
+                  data2Plot = log10(W4G_previous); %before
+                    caxis(cLim4Weights);
+                      if(true)
+                        lowerBound4Data = ilsub(caxis,1) + 1.5*abs(diff(caxis))/size(inInfo.plots.colormap_withNaNColor,1);
+                        data2Plot(data2Plot<lowerBound4Data) = lowerBound4Data; %show underflow expressions in the bluest color and not in NaN-gray.
+                      end
+                    imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+                    caxis(cLim4Weights);
+                    cbHs(end+1) = colorbar('location','SouthOutside');
+                  title(sprintf('log_{10}(W4G before regression)\n(used for regressing samples\nand newW4G*nG/(nG+nP)\nfor regressionResults4G)'));
+
+                Hs(end+1) = subplot(2,6,11);
+                  data2Plot = Z_eqd_conv_enforcedMonotonicity4P; %monotonic samples
+                    caxis(cLim);
+                    if(true)
+                      lowerBound4Data = ilsub(caxis,1) + 1.5*abs(diff(caxis))/size(inInfo.plots.colormap_withNaNColor,1);
+                      data2Plot(data2Plot<lowerBound4Data) = lowerBound4Data; %show underflow expressions in the bluest color and not in NaN-gray.
+                    end
+                    imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+                    caxis(cLim);
+                    cbHs(end+1) = colorbar('location','SouthOutside');
+                  title(sprintf('monotonic samples\n(regressionResults4P)'));
+
+                Hs(end+1) = subplot(2,6,12);
+                  data2Plot = log10(W4Z_eqd_conv_enforcedMonotonicity4P);
+                    caxis(cLim4Weights);
+                      if(true)
+                        lowerBound4Data = ilsub(caxis,1) + 1.5*abs(diff(caxis))/size(inInfo.plots.colormap_withNaNColor,1);
+                        data2Plot(data2Plot<lowerBound4Data) = lowerBound4Data; %show underflow expressions in the bluest color and not in NaN-gray.
+                      end
+                    imagesc(data2Plot); %cannot use robustBaseline here as it is cluastering-dependent.
+                    caxis(cLim4Weights);
+                    cbHs(end+1) = colorbar('location','SouthOutside');
+                  title(sprintf('log_{10}(weights from samples regression)\n(newW4P*nG/(nG+nP)\nfor regressionResults4P)')); %W4Z_eqd_conv_enforcedMonotonicity4P
+              end
+            %Optics:
+              set(cbHs,{'Position'},cellfun(@(pos)[pos(1)+pos(3)/5,pos(2)-2.5*pos(4),pos(3)*3/5,pos(4)*2/3],get(cbHs,'Position'),'UniformOutput',false),'FontSize',8);
+            %Manual/Zoom to top genes/samples:
+              zoom(fDevPlot,'on');
+              if(false)
+                set(Hs,'YLim',[1,signatureDefinition.step3_regression.signatureSizeByCorrSum4G])
+
+                set(Hs,'YLim',[nG-signatureDefinition.step3_regression.signatureSizeByCorrSum4G,nG])
+              end
+            drawnow;
+            keyboard;
+            close(fDevPlot); %save RAM (do not keep multiple figures open containing multiple full matrix subplots...)
+          end
     end
     %restore the numeric precision type of the input, if needed:
       if(~isa(bimonotonicX, numericTargetPrecision))

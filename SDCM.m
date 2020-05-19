@@ -304,6 +304,7 @@ function outInfo = SDCM(L2Is, inInfo, previouslyDetectedSignatures)
           end
           warning(' - preprocessing/REMOVING length(outInfo.preprocessing.IRemovedDuplicateValueRows)=%d source data rows\n            as they are identical value duplicates of other source data rows!', length(outInfo.preprocessing.IRemovedDuplicateValueRows));
           L2Is(outInfo.preprocessing.IRemovedDuplicateValueRows,:) = [];
+warning('TODO: also adapt .reference.rowID in the output (or better force handling of duplicates removal on caller level to preserve 1:1 relationships with input dimensions?)');
         end
       end
     %Dampen outliers, if enabled:
@@ -473,9 +474,6 @@ function outInfo = SDCM(L2Is, inInfo, previouslyDetectedSignatures)
         ;
         if(bCanResume)
           %Select number of previously detected signatures to recover:
-            if(inInfo.searchStrategy.performance.bCachePotentialInitialRepresentatives) 
-              warning('Resuming with inInfo.searchStrategy.performance.bCachePotentialInitialRepresentatives enabled may lead to not perfectly reproducible results, because the cache state cannot be restored and detection will resume with an empty cache (the cache is not saved with the other resume information to disk, because it is generally too large and this is too inefficient).');
-            end
             maxkInMem = find(cellfun(@(s)isfield(s.step3_regression,'signatureEigensignal')&&~isempty(s.step3_regression.signatureEigensignal),num2cell(eDState.signatures)),1,'last');
             eDState.current.k = maxkInMem;
               %<-this k plus one will become the next signature that will be searched for.
@@ -484,13 +482,19 @@ function outInfo = SDCM(L2Is, inInfo, previouslyDetectedSignatures)
               keyboard;
             %eDState.signatures(eDState.current.k+1:end) = []; %no need to delete; will be overwritten.
           %Cache resume logic (only available for end-resume)
-            if(inInfo.internal.bReuseCacheOnEndResume && ~isempty(eDState.current.precompute_previousIterations) && eDState.current.k==maxkInMem)
+            if(inInfo.internal.bReuseCacheOnEndResume && isfield(eDState.current,'precompute_previousIterations') && ~isempty(eDState.current.precompute_previousIterations) && eDState.current.k==maxkInMem)
               warning('REUSING eDState.current.precompute_previousIterations for this resume-from-last-detected');
             elseif(inInfo.internal.bReuseCacheOnEndResume)
+              if(inInfo.searchStrategy.performance.bCachePotentialInitialRepresentatives) 
+                warning('Resuming with inInfo.searchStrategy.performance.bCachePotentialInitialRepresentatives enabled may lead to not perfectly reproducible results, because the cache state cannot be restored and detection will resume with an empty cache (the cache is not saved with the other resume information to disk, because it is generally too large and this is too inefficient).');
+              end
               warning('inInfo.internal.bReuseCacheOnEndResume was true, but either no cache is present in memory or eDState.current.k<maxkInMem was chosen; the cache will now be cleared; use >>dbcont to confirm');
               keyboard;
               eDState.current.precompute_previousIterations = []; %clear cache.
             else
+              if(inInfo.searchStrategy.performance.bCachePotentialInitialRepresentatives) 
+                warning('Resuming with inInfo.searchStrategy.performance.bCachePotentialInitialRepresentatives enabled may lead to not perfectly reproducible results, because the cache state cannot be restored and detection will resume with an empty cache (the cache is not saved with the other resume information to disk, because it is generally too large and this is too inefficient).');
+              end
               warning('inInfo.internal.bReuseCacheOnEndResume is false => about to clear eDState.current.precompute_previousIterations; use >>dbcont to confirm');
               keyboard;
               eDState.current.precompute_previousIterations = []; %clear cache.
@@ -1073,6 +1077,13 @@ function outInfo = SDCM(L2Is, inInfo, previouslyDetectedSignatures)
                     signatureDefinition.explanations.step3_regression.(fn) = 'Boolean vector of size 1*nP determining the nonzero columns of this signature''s eigensignal; see .signatureEigensignal.';
                   case 'signatureDissectionStrengthsOS'
                     signatureDefinition.explanations.step3_regression.(fn) = 'The (nonzero parts of the) dissection strengths matrix. Can be used to estimate gene/sample memberships in this signature. Divide .signatureEigensignal by .signatureDissectionStrengthsOS to obtain the bimonotonically regressed signature signal before weakining parts of uncertain membership, i.e. to obtain the maximum amount of the signal sum that is consistent with and explainable by current signature axes (irrespective of weak correlation strength and significance).';
+                  case 'bFailsaveActive4emptySignatureFocus'
+                    signatureDefinition.explanations.step3_regression.(fn) = [...
+                      'If true, a FAILSAVE logic was triggered for this signature: Detected that the signature focus became empty after projecting the last regressed bimontonic curve onto step2_finalSignatureAxes, i.e. this curve is now in "empty high-dimensional space" without any well correlated data points. This usually means that we already were unable to find signature axes with a stable local maximum of the signature functional in step 2. Continuing would lead to a dissection of a zero matrix, re-detection of the same signature in the next iteration and an endless loop. Hence, we must dissect anything to bring the signal nearer towards zero.'...
+                     ...,'One option would be to skip step 2 optimization and disable step 3 adaptation (iterative projection of regression results) and force a dissection of a single bimonotonic regression based on the initial representative only.\n'...
+                     ,'One option is reset axes to results of step 2 and repeat step 3 without adaptation (without iterative projection of regression results).\n'...
+                     ,'If true, This has been executed; the signature of this iteration should then be reviewed with care!\n'...
+                    ];
                 %Copied fields from step 2:
                   case {'R4G','R4P','P4R4G','P4R4P','signedFocusedW4G','signedFocusedW4P','signedFocusedW4G_withPerpendicularSpace','signedFocusedW4P_withPerpendicularSpace','signedExtendedW4G','signedExtendedW4P','signatureSizeByCorrSum4G','signatureSizeByCorrSum4P','log10_p4Correlations','signatureSizeByCorrSum2D'}
                     signatureDefinition.explanations.step3_regression.(fn) = [signatureDefinition.explanations.step2_finalSignatureAxes.(fn), ' (Optionally updated for each regressed signature curve; otherwise idential to step 2.)'];

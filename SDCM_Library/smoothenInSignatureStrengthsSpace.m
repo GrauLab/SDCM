@@ -212,5 +212,77 @@ function [smoothSignal, fcn_smoothSignal4orderMetricCoordinates] = smoothenInSig
        ,'none'... %extrapolation method.
       );
       smoothSignal = fcn_smoothSignal4orderMetricCoordinates({orderMetric4G_orig, orderMetric4P_orig});
+    %Dev plot:
+      if(inInfo.internal.bDevPlots)
+        baselineEstimation_f = figure('Position',[73 547 1849 421]);
+          s=10;
+          cLim = 0.8*[-1,1]*max(abs([min(fullSignal_orig(:)),max(fullSignal_orig(:))]));
+          %Colormap:
+            CM = inInfo.plots.colormap;
+            %CM = sqrt(inInfo.plots.colormap);
+          %Indices f�r orig:
+            r4GThreshold = 0; %0.1;
+            if(length(signatureDefinition.step3_regression.R4G)==length(orderMetric4G_orig))
+              SII = find(abs(signatureDefinition.step3_regression.R4G(signatureDefinition.step3_regression.eigenSI))>r4GThreshold);
+            else
+              SII = 1:length(orderMetric4G_orig);
+            end
+          baselineEstimation_aCurrentL2Rs = subplot(1,s,1, 'LineWidth',2);
+            imagesc(fullSignal_orig(SII,:)); %orderMetric4G_orig(SII),orderMetric4P_orig,
+            colormap(CM); caxis(cLim);
+            title('Z_orig','Interpreter','none');
+            set(baselineEstimation_aCurrentL2Rs,'Position',get(baselineEstimation_aCurrentL2Rs,'Position').*[0.5,1,1,1]);
+          if(true)
+            subplot(1,s,2, 'LineWidth',2);
+              imagesc(orderMetric4P_eqd,orderMetric4G_eqd,signal_eqd);
+              colormap(CM); caxis(cLim);
+              title(sprintf('signal_eqd\n(resolution: %d*%d)',nGp2,nPp2),'Interpreter','none');
+            subplot(1,s,3, 'LineWidth',2);
+              imagesc(padded_signal_eqd); %.*paddedFourierWeights_eqd
+              colormap(CM); caxis(cLim);
+              title('paddedZ_eqd','Interpreter','none');
+            subplot(1,s,4, 'LineWidth',2);
+              imagesc(gaussianKernel_eqd); caxis([0,max(max(gaussianKernel_eqd))]);
+              title('(unpadded) Z_kern','Interpreter','none');
+            subplot(1,s,5, 'LineWidth',2);
+              imagesc(padded_convolution_eqd); 
+              title(sprintf('convolution result\npaddedZ_eqd_conv'),'Interpreter','none');
+              colormap(CM); caxis(cLim);
+            subplot(1,s,6, 'LineWidth',2);
+              imagesc(orderMetric4P_eqd,orderMetric4G_eqd,convolution_eqd); 
+              colormap(CM); caxis(cLim);
+              title(sprintf('unpadded convolution result\nZ_eqd_conv'),'Interpreter','none');
+          end
+          subplot(1,s,7, 'LineWidth',2);
+            imagesc(orderMetric4P_orig,orderMetric4G_orig(SII),signal(SII,:)); 
+            colormap(CM); caxis(cLim);
+            title(sprintf('smooth signature in original axes\nsignatureEigensignal_orig_smooth'),'Interpreter','none');
+          subplot(1,s,8, 'LineWidth',2);
+            %imagesc(orderMetric4P_eqd,orderMetric4G_eqd,bimonotonic_convolution_eqd); 
+            %imagesc(signatureSignalStrengths4G_eqd,signatureSignalStrengths4P_eqd,bimonotonic_signatureEigensignal_subsampled); 
+            %imagesc(orderMetric4P_orig,orderMetric4G_orig(SII),signatureEigensignal_orig(SII,:)); 
+            imagesc(smoothSignal(SII,:)); %leave gene numbers on axes.
+            colormap(CM); caxis(cLim);
+            title(sprintf('after Fourier2D smoothing\nsignatureEigensignal_orig_prepared_smooth'),'Interpreter','none');
+          baselineEstimation_aRemainingL2Rs = subplot(1,s,[9,10], 'LineWidth',2);
+            imagesc(fullSignal_orig(SII,:)-smoothSignal(SII,:)); 
+            colormap(CM); caxis(cLim); cbh=colorbar;
+            title(sprintf('remaining signal\nZ_orig-signatureEigensignal_orig_prepared_smooth'),'Interpreter','none');
+            set(baselineEstimation_aRemainingL2Rs,'Position',ilv(get(baselineEstimation_aRemainingL2Rs,'Position'),@(P)[(2*P(1)+1*1)/3,P(2:end)]));
+          %Equalize axes widths:
+            Hs = setdiff(findobj(baselineEstimation_f,'Type','axes'),[cbh]);
+            Poss = get(Hs,'Position');
+            Poss = vertcat(Poss{:});
+            Poss(:,3) = mean(Poss(:,3));
+            Poss = num2cell(Poss,2);
+            set(Hs,{'Position'},Poss);
+          %Manual/Zoom to top genes/samples:
+            zoom(baselineEstimation_f,'on');
+            if(false)
+              set([baselineEstimation_aCurrentL2Rs, baselineEstimation_aRemainingL2Rs], 'YLim',[1,100])
+
+              set([baselineEstimation_aCurrentL2Rs, baselineEstimation_aRemainingL2Rs],'YLim',[nG-100,nG])
+            end
+      end
 end
 

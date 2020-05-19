@@ -1403,13 +1403,13 @@ function outInfo = plotDetectedSignature(signatureDefinition, inInfo)
                     CM4SampleClasses = inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil).CM4SampleClasses;
                   end
                   colors4SampleClasses = CM4SampleClasses(1:length(uniqueSampleClasses),:);
-                orderedSampleClassColors = joinAndFill(uniqueSampleClasses(:), colors4SampleClasses, inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil).samples(SJ));
-                  orderedSampleClassColors = reshape(orderedSampleClassColors',1,length(SJ),3);
+                orderedSampleClassColors = joinAndFill(uniqueSampleClasses(:), colors4SampleClasses, inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil).samples(SJ)');
+                  orderedSampleClassColors = reshape(orderedSampleClassColors,1,length(SJ),3);
                 xRange = xlim(aUnderbarTarget);
                   xRange(1) = xRange(1)+1/2;
                   xRange(end) = xRange(end)-1/2;
-%                   yRange = ilv(ylim(aUnderbarTarget),@(YLim)YLim(2)+[1/500,15.7/500*iif(bInPipelinePlot,maxFigureHeight/figureHeight,1)]*abs(-YLim(1)+YLim(2)) );
-                yRange = ilv(ylim(aUnderbarTarget),@(YLim)YLim(2)+[1/500,21.7/500*iif(bInPipelinePlot,maxFigureHeight/figureHeight,1)]*abs(-YLim(1)+YLim(2)) );
+                YLim = ylim(aUnderbarTarget);
+                yRange = YLim(2)+[1/500,21.7/500*iif(bInPipelinePlot,maxFigureHeight/figureHeight,1)]*abs(-YLim(1)+YLim(2));
                   yRange = yRange + (cil-1+2.5)*abs(diff(yRange));
                 hSampleClasses = image(...
                    'CData',repmat(orderedSampleClassColors,16,1,1) ... %prevent anti-aliasing in PDF viewers.
@@ -1418,13 +1418,21 @@ function outInfo = plotDetectedSignature(signatureDefinition, inInfo)
                   ,'YData',yRange ...
                   ,'Clipping','off'...
                 );
-                if(~isfield(inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil),'legentHeader4samples'))
-                  inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil).legentHeader4samples = 'original cohorts:';
+                  ylim(aUnderbarTarget, YLim+1); %workaround, as ylim thinks that it was not changed by the image command, but it was
+                  ylim(aUnderbarTarget, YLim); %resote ylim, if Matlab moved it due to the added image.
+                if(~isfield(inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil),'legendHeader4samples'))
+                  %Backwards compatibility (renamed a field name after a typo...):
+                    if(isfield(inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil),'legentHeader4samples')) 
+                      inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil).legendHeader4samples = inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil).legentHeader4samples;
+                  %Default:
+                    else
+                      inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil).legendHeader4samples = 'original cohorts:';
+                    end
                 end
                 hLegend4SampleClasses = text(...
                    iif(mod(cil,2)==0,min(xRange)-abs(diff(xlim(aUnderbarTarget)))/25, max(xRange)+abs(diff(xlim(aUnderbarTarget)))/25) ...
                   ,mean(yRange)...
-                  ,[{['\color[rgb]{1 1 1}',inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil).legentHeader4samples]}, cellfun(@(s,c)sprintf('\\color[rgb]{%0.2f %0.2f %0.2f}%s',c(1),c(2),c(3),s),uniqueSampleClasses,num2cell(colors4SampleClasses,2)','UniformOutput',false)] ...
+                  ,[{['\color[rgb]{1 1 1}',inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil).legendHeader4samples]}, cellfun(@(s,c)sprintf('\\color[rgb]{%0.2f %0.2f %0.2f}%s',c(1),c(2),c(3),s),uniqueSampleClasses,num2cell(colors4SampleClasses,2)','UniformOutput',false)] ...
                   ,'Parent',aUnderbarTarget ...
                   ,'HorizontalAlignment',iif(mod(cil,2)==0,'right','left'), 'VerticalAlignment',iif(mod(cil,3)==1,'middle',iif(mod(cil,3)==2,'middle','top')) ...
                   ,'FontSize',latexFontSize-5, 'FontName','Helvetica', 'FontWeight','bold' ...
@@ -1451,12 +1459,13 @@ function outInfo = plotDetectedSignature(signatureDefinition, inInfo)
                     CM4SampleClasses = inInfo.plots.displayPredefinedClasses4aShifts(cil).CM4SampleClasses;
                   end
                   colors4SampleClasses = CM4SampleClasses(1:length(uniqueSampleClasses),:);
-                orderedSampleClassColors = joinAndFill(uniqueSampleClasses(:), colors4SampleClasses, inInfo.plots.displayPredefinedClasses4aShifts(cil).samples(SJ));
-                  orderedSampleClassColors = reshape(orderedSampleClassColors',1,length(SJ),3);
+                orderedSampleClassColors = joinAndFill(uniqueSampleClasses(:), colors4SampleClasses, inInfo.plots.displayPredefinedClasses4aShifts(cil).samples(SJ)');
+                  orderedSampleClassColors = reshape(orderedSampleClassColors,1,length(SJ),3);
                 xRange = xlim(aUnderbarTarget);
                   xRange(1) = xRange(1)+1/2;
                   xRange(end) = xRange(end)-1/2;
-                yRange = ilv(ylim(aUnderbarTarget),@(YLim)YLim(2)+[2/500,15.7/500*maxFigureHeight/figureHeight]*abs(-YLim(1)+YLim(2)) );
+                YLim = ylim(aUnderbarTarget);
+                yRange = YLim(2)+[2/500,15.7/500*maxFigureHeight/figureHeight]*abs(-YLim(1)+YLim(2));
                   yRange = yRange + (cil-1)*abs(diff(yRange));
                 hSampleClasses = image(...
                    'CData',repmat(orderedSampleClassColors,16,1,1) ... %prevent anti-aliasing in PDF viewers.
@@ -1465,13 +1474,15 @@ function outInfo = plotDetectedSignature(signatureDefinition, inInfo)
                   ,'YData',yRange ...
                   ,'Clipping','off'...
                 );
-                if(~isfield(inInfo.plots.displayPredefinedClasses4aShifts(cil),'legentHeader4samples'))
-                  inInfo.plots.displayPredefinedClasses4aShifts(cil).legentHeader4samples = 'original cohorts:';
+                  ylim(aUnderbarTarget, YLim+1); %workaround, as ylim thinks that it was not changed by the image command, but it was
+                  ylim(aUnderbarTarget, YLim); %restore ylim, if Matlab moved it due to the added image.
+                if(~isfield(inInfo.plots.displayPredefinedClasses4aShifts(cil),'legendHeader4samples'))
+                  inInfo.plots.displayPredefinedClasses4aShifts(cil).legendHeader4samples = 'original cohorts:';
                 end
                 hLegend4SampleClasses = text(...
                    iif(mod(cil,2)==1,min(xRange)-abs(diff(xlim(aUnderbarTarget)))/25, max(xRange)+abs(diff(xlim(aUnderbarTarget)))/25) ...
                   ,mean(yRange)...
-                  ,[{['\color[rgb]{1 1 1}',inInfo.plots.displayPredefinedClasses4aShifts(cil).legentHeader4samples]}, cellfun(@(s,c)sprintf('\\color[rgb]{%0.2f %0.2f %0.2f}%s',c(1),c(2),c(3),s),uniqueSampleClasses,num2cell(colors4SampleClasses,2)','UniformOutput',false)] ...
+                  ,[{['\color[rgb]{1 1 1}',inInfo.plots.displayPredefinedClasses4aShifts(cil).legendHeader4samples]}, cellfun(@(s,c)sprintf('\\color[rgb]{%0.2f %0.2f %0.2f}%s',c(1),c(2),c(3),s),uniqueSampleClasses,num2cell(colors4SampleClasses,2)','UniformOutput',false)] ...
                   ,'Parent',aUnderbarTarget ...
                   ...,'HorizontalAlignment',iif(mod(cil,2)==1,'right','left'), 'VerticalAlignment',iif(mod(cil,3)==1,'bottom',iif(mod(cil,3)==2,'middle','top')) ...
                   ,'HorizontalAlignment',iif(mod(cil,2)==1,'right','left'), 'VerticalAlignment',iif(mod(cil,3)==1,'middle',iif(mod(cil,3)==2,'middle','top')) ...
@@ -1664,7 +1675,7 @@ function outInfo = plotDetectedSignature(signatureDefinition, inInfo)
           %Add color underbars as additional columns, if available:
             if(isfield(inInfo.plots,'displayPredefinedClasses4aCurrentL2Rs'))
               for cil=1:length(inInfo.plots.displayPredefinedClasses4aCurrentL2Rs)
-                additionalSampleColumns.headers{end+1} = inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil).legentHeader4samples;
+                additionalSampleColumns.headers{end+1} = inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil).legendHeader4samples;
                 additionalSampleColumns.data = [additionalSampleColumns.data, inInfo.plots.displayPredefinedClasses4aCurrentL2Rs(cil).samples(:)];
                 saveAsXLSXInInfo4SamplesWorksheet.postprocess.createColumnGroups.columnTreePaths{end+1} = {'clinical data'};
                 saveAsXLSXInInfo4SamplesWorksheet.display.columnWidths(end+1) = NaN;
@@ -1672,7 +1683,7 @@ function outInfo = plotDetectedSignature(signatureDefinition, inInfo)
             end
             if(bInPipelinePlot && isfield(inInfo.plots,'displayPredefinedClasses4aShifts'))
               for cil=1:length(inInfo.plots.displayPredefinedClasses4aShifts)
-                additionalSampleColumns.headers{end+1} = inInfo.plots.displayPredefinedClasses4aShifts(cil).legentHeader4samples;
+                additionalSampleColumns.headers{end+1} = inInfo.plots.displayPredefinedClasses4aShifts(cil).legendHeader4samples;
                 additionalSampleColumns.data = [additionalSampleColumns.data, inInfo.plots.displayPredefinedClasses4aShifts(cil).samples(:)];
                 saveAsXLSXInInfo4SamplesWorksheet.postprocess.createColumnGroups.columnTreePaths{end+1} = {'clinical data'};
                 saveAsXLSXInInfo4SamplesWorksheet.display.columnWidths(end+1) = NaN;
@@ -1791,3 +1802,6 @@ end
       set(lc_aCurrentL2Rs   ,'XLim',zoomState.trafos.colT2L2RX(get(aOverlay4ColTStats,'XLim')),  'YLim',zoomState.trafos.colT2L2RY(get(aOverlay4ColTStats,'YLim')));
     end
 
+
+
+    

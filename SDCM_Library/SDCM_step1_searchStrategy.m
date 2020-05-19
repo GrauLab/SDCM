@@ -84,7 +84,7 @@
             end
             precomputeCandidatesInParallel([], inInfo); 
             %Cache logic: Performance/Restore candidate initial representatives computed in the last detection iteration that were not affected/invalidated by the last effect:
-              if(inInfo.searchStrategy.performance.bCachePotentialInitialRepresentatives(min(end,sL)) && ~isempty(eDState.current.precompute_previousIterations))
+              if(inInfo.searchStrategy.performance.bCachePotentialInitialRepresentatives(min(end,sL)) && isfield(eDState.current,'precompute_previousIterations') && ~isempty(eDState.current.precompute_previousIterations))
                 eDState.current.precompute = eDState.current.precompute_previousIterations;
                 cachedImJFromPreviousIterations = eDState.current.precompute.ImJ;
                 if(~isempty(cachedImJFromPreviousIterations))

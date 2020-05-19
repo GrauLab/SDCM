@@ -4,7 +4,7 @@
 % signals to minimize false negatives as primary and to minimize
 % false positives as secondary priority. Some parameters are
 % adaptive to the signal size [nG,nP].
-
+% TODO: QC of explanation texts...
 function defaultInfo = SDCM_defaultConfig(nG,nP)
   %Initialize:
     explanations = struct();
@@ -22,7 +22,7 @@ function defaultInfo = SDCM_defaultConfig(nG,nP)
         defaultInfo.reference.colGroups = -(1:nP); %use negative numbers to discern cols from rows as the default naming convention.
       end
     %Version info:
-      defaultInfo.reference.version = 3.55;
+      defaultInfo.reference.version = 3.61;
       defaultInfo.reference.versionText = '(c) Michael Grau, April 2016';
   %% Preprocessing options:
     explanations.preprocessing.numericTargetPrecision = 'The numeric precision for the signal and all computations. Must be either single or double. Default: ''double''; use single in order to be more memory-efficient for very large data sets.';
@@ -403,7 +403,6 @@ function defaultInfo = SDCM_defaultConfig(nG,nP)
       defaultInfo.internal.bConsistencyCheckAfterEachDetectionIteration = false; %true;
     explanations.internal.bEnablePostProductionCodeOptimizations = 'Some code optimizations were implemented after production. For backwards compatibility, they can be centrally disabled with this flag. Default: true';
       defaultInfo.internal.bEnablePostProductionCodeOptimizations = true;
-defaultInfo.internal.bEnablePostProductionCodeOptimizations = false;
     explanations.internal.bAllowDissectionOfTinyDatasets = 'Originally, numerics of SDCM were developed for high-dimensional datasets. SDCM''s concepts extends mathematically to low-dimensional scenarios as well. However, application of SDCM to low-dimensional data has not been sufficiently tested yet and, therefore, is still considered experimental. To override this (e.g. for generating 3D concept plots or for algorithm development) set this flag. Default: false, i.e. only allow sufficently large input datasets.';
       defaultInfo.internal.bAllowDissectionOfTinyDatasets = false;
   %Output: add field explanations to the defaultInfo config structure:

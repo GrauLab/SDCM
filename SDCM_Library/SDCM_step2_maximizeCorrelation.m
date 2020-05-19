@@ -906,6 +906,8 @@
               fclose(fid);
             end
         end
+      %2020-02/TODO: if signature statistics decreased (no stable local maximum, wandering axes in high-dim), add an option to just accept the (in this case better) estimation based on the initial representative from the search strategy.
+        %TODO.
       if(inInfo.internal.bDevEnableInteractiveBreaks)
         interactiveCheckPoint();
       end
