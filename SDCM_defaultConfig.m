@@ -115,8 +115,12 @@ function defaultInfo = SDCM_defaultConfig(nG,nP)
           explanations.searchStrategy.qualification.bConservativeBonferroniMultipleHypothesisCorrectionForCombinedP = 'If true, .alpha4combined is effectively divided by nG+nP, i.e. by the maximum amount of hypothesis (i.e. initial representative candidates) tested. (Bonferroni correction for multiple hypothesis tests.) Default: true';
             defaultInfo.searchStrategy.qualification.bConservativeBonferroniMultipleHypothesisCorrectionForCombinedP = true;
 
-          explanations.searchStrategy.qualification.minCorrInExtendedFocus = 'Minimum demanded mean absolute correlation of all participating genes and samples in the signature''s extended focus.e  Default: 0.4';
+          explanations.searchStrategy.qualification.minCorrInExtendedFocus = 'Minimum demanded mean absolute correlation of all participating genes and samples in the signature''s extended focus. Default: 0.4';
             defaultInfo.searchStrategy.qualification.minCorrInExtendedFocus = 0.4;
+
+          %202301: in some input contexts (e.g. quantile axes units), we may want to specify an absolute minSignalStrengthInSignatureFocus (the same as is printed in status outpus as %0.2ffocus)
+            explanations.searchStrategy.qualification.minAbsMean2DInExtendedFocus = 'Minimum demanded mean absolute signal in the signature focus (in your input units). Default: 0, i.e. disabled.';
+              defaultInfo.searchStrategy.qualification.minAbsMean2DInExtendedFocus = 0; %test condition: signatureCand.signatureAbsMean2D>=.minAbsMean2DInExtendedFocus.
         end
     %Signature computation:
       %Signature focus (initial and refined weights):

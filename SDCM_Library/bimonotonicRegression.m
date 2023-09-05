@@ -470,7 +470,7 @@ function [bimonotonicX, signatureDefinition] = bimonotonicRegression(...
         SQ = (bimonotonicX_previous-bimonotonicX).^2;
         dL2RsConvergence = sqrt(nanvar(SQ(:),W2D_initial(:)));
         bBiMonotonic = dL2RsConvergence <= dL2RsConvergenceEpsilon;
-        %if bi-monotonic within the preformance subspace, affitionally check convergence in the full space (based on interpolation):
+        %if bi-monotonic within the preformance subspace, additionally check convergence in the full space (based on interpolation):
           if(bBiMonotonic) 
             SQ = (bimonotonicX_previous-bimonotonicX).^2;
             dL2RsConvergence = max(dL2RsConvergence, sqrt(nanvar(SQ(:),1)));

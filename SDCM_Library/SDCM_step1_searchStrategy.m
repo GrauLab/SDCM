@@ -79,7 +79,7 @@
       %Performance: precompute constant values for all candidate test iterations:
         if(true)
           %initialize/clear precompute cache:
-            if(ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,pool.NumWorkers))==0) %matlabpool('size')==0)
+            if(ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,@()pool.NumWorkers))==0) %matlabpool('size')==0)
               warning('Hint: The pool of Matlab workers is currently closed; consider >>parpool(4) or >>parpool(8) depending on your CPU to speed up processing by parallelization.');
             end
             precomputeCandidatesInParallel([], inInfo); 
@@ -736,9 +736,11 @@
           end
         %Check minimum average correlation strength:
           bSufficientCorrelationStrength = signature.signatureCorrInExtendedFocus >= inInfo.searchStrategy.qualification.minCorrInExtendedFocus(min(end,sL));
+        %Check minimum average signal strength:
+          bSufficientsiAbsoluteSignalStrength = signature.signatureAbsMean2D >= inInfo.searchStrategy.qualification.minAbsMean2DInExtendedFocus(min(end,sL));
 
         %Overall qualification flag:
-          bQualifiedAsInitialRepresenativeCandidate = ~bTooSmall && bSufficientCorrelationStrength && bCorrSimpleQuali && bSignalSimpleQuali && bCombinedSimpleQuali;
+          bQualifiedAsInitialRepresenativeCandidate = ~bTooSmall && bSufficientCorrelationStrength && bSufficientsiAbsoluteSignalStrength && bCorrSimpleQuali && bSignalSimpleQuali && bCombinedSimpleQuali;
           if(inInfo.searchStrategy.qualification.bConservativeBonferroniMultipleHypothesisCorrectionForCorrP(min(end,sL)))
             bQualifiedAsInitialRepresenativeCandidate = bQualifiedAsInitialRepresenativeCandidate && bCorrBonferroniQuali;
           end

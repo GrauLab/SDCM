@@ -255,7 +255,7 @@
               if(~ismember(imj, eDState.current.precompute.ImJ)) %if not already in the cache:
                 %Define ImJ to precalc: %<-Note: keep the performance/skip config in sync with the lookahead loop.
                   precalcChunkSize = min(inInfo.correlationMaximization.maxLookahead4NextBestAccuCandidate(min(end,sL))-lookaheadCursor+1, ceil(sum(eDState.current.precompute.BcandidateAccusUpToDate)/2)); %increase cahce by the amount still needed for the lookahead, but never more then half of its size.
-                  nWorkers = max(1,inInfo.correlationMaximization.performance.nMinPrecomputeSignaturesPerWorker(min(end,sL))*ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,pool.NumWorkers))); %max(1,x) since we have at least our own instance as worker; 2* to not have too large overhad.
+                  nWorkers = max(1,inInfo.correlationMaximization.performance.nMinPrecomputeSignaturesPerWorker(min(end,sL))*ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,@()pool.NumWorkers))); %max(1,x) since we have at least our own instance as worker; 2* to not have too large overhad.
                   precalcChunkSize = max(nWorkers, precalcChunkSize); %in anticipation of more members iterations and similar presort order, we compute a bit more than needed to fill the cache, if the request would otherwise be too few (i.e. much overhead percentage)
                   nextNeededImJ = processingOrder.SImJ(lookaheadCursor:end);
                   nextNeededImJ(ismember(nextNeededImJ,eDState.current.precompute.ImJ)) = [];
@@ -298,14 +298,14 @@
             %Performance: parallel update of the next required candidate accumulations and convergence steps for cached signatures from previous iterations:
               if(~eDState.current.precompute.BcandidateAccusUpToDate(eDState.current.precompute.ImJ==imj))
                 %Define ImJ to precalc: %<-Note: keep the performance/skip config in sync with the lookahead loop.
-                  nWorkers = max(1,inInfo.correlationMaximization.performance.nMinPrecomputeSignaturesPerWorker(min(end,sL))*ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,pool.NumWorkers))); %max(1, since we have at least our own instance as worker; 4* to not have too large overhad.
+                  nWorkers = max(1,inInfo.correlationMaximization.performance.nMinPrecomputeSignaturesPerWorker(min(end,sL))*ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,@()pool.NumWorkers))); %max(1, since we have at least our own instance as worker; 4* to not have too large overhad.
                   precalcChunkSize = max(nWorkers, ceil(sum(eDState.current.precompute.BcandidateAccusUpToDate)/2)); %precompute (maximally) half of the cache, but minimally nWorkers
                   precalcChunkSize = max(precalcChunkSize, ceil(inInfo.correlationMaximization.maxLookahead4NextBestAccuCandidate(min(end,sL))/2)); %pre-accumulation is relatively fast and should be done at maximum two times per member loop.
                   if(lookaheadCursor<inInfo.correlationMaximization.maxLookahead4NextBestAccuCandidate(min(end,sL)))
                     precalcChunkSize = min(precalcChunkSize, inInfo.correlationMaximization.maxLookahead4NextBestAccuCandidate(min(end,sL))-lookaheadCursor+1); %never increase cache by more than needed.
                   end
-                  if(ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,pool.NumWorkers))>0)
-                    precalcChunkSize = ceil(precalcChunkSize/ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,pool.NumWorkers)))*ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,pool.NumWorkers)); %use all workers.
+                  if(ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,@()pool.NumWorkers))>0)
+                    precalcChunkSize = ceil(precalcChunkSize/ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,@()pool.NumWorkers)))*ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,@()pool.NumWorkers)); %use all workers.
                   end
                   %precalcChunkSize = 1; %performance: parallelization disabled here due to overhead.
                     %<-for large data the overhead without parallelization is much higher!

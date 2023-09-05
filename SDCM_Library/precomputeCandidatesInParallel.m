@@ -110,7 +110,7 @@ function precomputeCandidatesInParallel(ImJ, inInfo, BsPerformanceSubspace4Corre
         lc_currentData.noiseEstimation.PSignalStrength4G = 10.^eDState.noiseEstimation.log10PNoise4G;
         lc_currentData.noiseEstimation.PSignalStrength4P = 10.^eDState.noiseEstimation.log10PNoise4P;
     %Decide on parallelization and precompute locally or on workers:
-      nWorkers = ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,pool.NumWorkers)); %matlabpool('size');
+      nWorkers = ilv(gcp('nocreate'),@(pool)iif(isempty(pool),0,@()pool.NumWorkers)); %matlabpool('size');
       nParallelizationThreshold = max(1,nWorkers)/2;
       bSendToWorkers = length(newImJToPrecomputeNow) > nParallelizationThreshold && nWorkers>0;
       if(~bSendToWorkers)
