@@ -492,6 +492,7 @@
     configuration.plots.descriptions.sSamplesLabel = sprintf('simulated samples (of %d)', simulated.nP);
     configuration.plots.descriptions.sGenesLabel = sprintf('simulated genes (of %d)', simulated.nG);
     configuration.plots.signatureDefinitions.cLim4L2Rs = [-2.5,2.5]; %use a common non-adaptive color axis for all signatures in the versatility test to see signal strength differences.
+    configuration.plots.focusConvergence.bEnabled = true;
   %config modification example: increase detection sensitivity by reducing default qualification thresholds (useful for detection of the weak signal pattern #6 even in context of the high superposition-depth 'versatility test with 19 signatures'; however, this may invite some false positive signatures):
     %configuration.searchStrategy.qualification.alpha4signalStrength = 1e-3; %default=1e-5
     %configuration.searchStrategy.qualification.minCorrInExtendedFocus = 0.33; %default=0.4

@@ -337,8 +337,8 @@ warning('TODO: also adapt .reference.rowID in the output (or better force handli
         inInfo.preprocessing.bQuantilenormalizeSamples = false; %Matlab's quantilenorm function crashes on allNaNs inputs; disable as it is irrelevant anyway in this case.
       end
       inInfo.preprocessing.bDataContainsNaNs = nNaNs>0;
-      if(~inInfo.preprocessing.bSetNaNsToZeroL2R)
-        SDCM_printStatus(0, '   - Your signal contains %d missing values (NaN ratio = %0.1f%%). Note: This requires the use of slower NaN-robust aggregation functions like nanmean instead of mean. You might want to consider using inInfo.preprocessing.bSetNaNsToZeroL2R for speed. If quality maximization is of primary interest, keep this configuration and let the algorithm impute missing values based on the eigenorders detected for the non-missing values.'...
+      if(inInfo.preprocessing.bDataContainsNaNs && ~inInfo.preprocessing.bSetNaNsToZeroL2R)
+        SDCM_printStatus(0, '   - Your signal contains %d missing values (NaN ratio = %0.1f%%). Note: This requires the use of slower NaN-robust aggregation functions like nanmean instead of mean. You might want to consider using inInfo.preprocessing.bSetNaNsToZeroL2R for speed. If quality maximization is of primary interest, keep this configuration and let the algorithm impute missing values based on the eigenorders detected for the non-missing values.\n'...
           ,nNaNs, nNaNs/numel(L2Is)*100 ...
         );
       end
@@ -659,6 +659,7 @@ warning('TODO: also adapt .reference.rowID in the output (or better force handli
               end
           end
       end
+    eDState.outInfo = outInfo; %dev: backup against caller-level loss of last results (overwrite possible large-in-mem results backup from previous SDCM call)
     SDCM_printStatus(0, '  ->ready for detection.\n');
 
   %% SDCM: Iteratively detect signatures and remove their own regressed bimontonic signal, until statistically only noise seems to be left:
@@ -1976,5 +1977,6 @@ warning('TODO: also adapt .reference.rowID in the output (or better force handli
       if(inInfo.export.bCreateDetectionLogFile)
         diary off;
       end
+    eDState.outInfo = outInfo; %dev: backup against caller-level loss of last results (overwritten on next SDCM call)
 end
 
